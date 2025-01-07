@@ -8,8 +8,20 @@ from telegram import Bot
 import requests
 import os
 from dotenv import load_dotenv
+from flask import Flask
 load_dotenv("env.txt")
 
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return "Ciao, il tuo servizio funziona!"
+
+if __name__ == '__main__':
+    # Usa la porta definita da Render (di solito è definita nella variabile d'ambiente PORT)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+    
 # Telegram Variable
 botkey = os.getenv("botkey")
 chat = os.getenv("chat")
@@ -231,6 +243,7 @@ while True:
       if tasks > 0:
        schedule.run_pending()
        tasks -= 1
+
 
 
 
