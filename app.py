@@ -6,15 +6,18 @@ from paapi5_python_sdk.rest import ApiException
 import time, schedule
 from telegram import Bot
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv("env.txt")
 
 # Telegram Variable
-botkey = "7563332542:AAH22r3JsuLabAlEKA8SiEOlNGUQTj4q60Y"
-chat = "-1002378619667"
+botkey = os.getenv("botkey")
+chat = os.getenv("chat")
 message = "Messaggio"
 bot = Bot(botkey)
 headers = {"content-type": "application/json"}
 url_bot = f"https://api.telegram.org/bot{botkey}/sendMessage"
-owner_chat_it = 975722590
+owner_chat_id = os.getenv("owner_chat_id")
 scheduled_time = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
 bot_offers = []
 tasks = 0
@@ -40,7 +43,7 @@ def photo_message():
 
 🛒 *Accedi all'offerta*: {bot_offers[0]["Url"]}
 """,
-    "photo": f"{bot_offers[0]["Img"]}",
+    "photo": bot_offers[0]["Img"],
     "parse_mode": "Markdown",
     "disable_web_page_preview": True,
 }
@@ -53,7 +56,7 @@ def photo_message():
 
   else:
     data = {
-      "chat_id": owner_chat_it,
+      "chat_id": owner_chat_id,
       "text": "No more offer to show, next round will be loaded tomorrow",
       #"photo": "https://jooinn.com/images/no-more-1.jpg",
       #"disable_web_page_preview": True,
@@ -93,8 +96,8 @@ def prova_messaggio(): # Non utilizzato solo di prova
     print(response_bot.text)
 
 def search_items(page, category):
-    access_key = "AKIAJL6IJY6SOCFINTOA"
-    secret_key = "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"
+    access_key = os.getenv("access_key")
+    secret_key = os.getenv("secret_key")
     partner_tag = "maulink-21"
     host = "webservices.amazon.it"
     region = "eu-west-1"
@@ -135,7 +138,6 @@ def search_items(page, category):
     try:
         """ Sending request """
         response = default_api.search_items(search_items_request)
-
         print("API called Successfully")
         #print("Complete Response:", response)
         """ Parse response """  
@@ -171,13 +173,12 @@ def search_items(page, category):
                     and item_0.offers.listings[0].price is not None
                     and item_0.offers.listings[0].price.display_amount is not None
                 ):
-                    #print("Buying Price: ", item_0.offers.listings[0].price.display_amount)
-                    #print("Sconto Percentuale:", item_0.offers.listings[0].price.savings.percentage, "%")
+                    print("Buying Price: ", item_0.offers.listings[0].price.display_amount)
+                    print("Sconto Percentuale:", item_0.offers.listings[0].price.savings.percentage, "%")
         if response.errors is not None:
-            print("\nPrinting Errors:\nPrinting First Error Object from list of Errors")
-            print("Error code", response.errors[0].code)
-            print("Error message", response.errors[0].message)
-
+          print("\nPrinting Errors:\nPrinting First Error Object from list of Errors")
+          print("Error code", response.errors[0].code)
+          print("Error message", response.errors[0].message)
     except ApiException as exception:
         print("Error calling PA-API 5.0!")
         print("Status code:", exception.status)
