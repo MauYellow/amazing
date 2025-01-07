@@ -6,4 +6,4 @@ urllib3 >= 1.15.1
 schedule >= 1.2.2
 python-telegram-bot>=21.0,<22.0
 requests>=2.32.3
-dotenv >= 0.0.5
+python-dotenv >= 0.0.5
