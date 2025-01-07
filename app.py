@@ -49,7 +49,7 @@ def photo_message():
 }
     response_bot = requests.post(f"https://api.telegram.org/bot{botkey}/sendPhoto", headers=headers, json=data)
     if response_bot.status_code == 200:
-      print(f"Foto delle {time.strftime("%H:%M:%S", time.localtime())} inviata con successo, {len(bot_offers) - 1} offerte rimanenti")
+      print(f"Foto delle {time.strftime('%H:%M:%S', time.localtime())} inviata con successo, {len(bot_offers) - 1} offerte rimanenti")
       bot_offers.pop(0)
     else:
       print(f"Errore: {response_bot.status_code}")
