@@ -227,10 +227,12 @@ def main():
 
 
 # Pianifica attività giornaliere
-#schedule.every().day.at("13:31:00").do(empty_offers)
+schedule.every().day.at("14:40:00").do(empty_offers)
+schedule.every().day.at("13:40:00").do(empty_offers)
+schedule.every().day.at("15:40:00").do(empty_offers)
 #schedule.every().day.at("13:31:10").do(main)
-schedule.every(5).minutes.do(empty_offers)
-schedule.every(5).minutes.do(main)
+#schedule.every(5).minutes.do(empty_offers)
+#schedule.every(5).minutes.do(main)
 
 for post_time in scheduled_time:
     schedule.every().day.at(post_time).do(photo_message)
