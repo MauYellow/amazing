@@ -30,10 +30,10 @@ bot = Bot(botkey)
 headers = {"content-type": "application/json"}
 url_bot = f"https://api.telegram.org/bot{botkey}/sendMessage"
 owner_chat_id = os.getenv("owner_chat_id")
-scheduled_time = ["14:05", "14:08", "13:32", "13:34", "13:36", "13:40", "13:42", "13:44", "13:58", "13:59", "14:00", "14:01", "14:02"]
+scheduled_time = ["08.00", "08.30", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"]
 bot_offers = []
 tasks = 0
-chosen_categories = ["SportsAndOutdoors", "Books", "Apparel", "Handmade", "GardenAndOutdoor"]
+chosen_categories = ["SportsAndOutdoors", "Books", "Apparel", "Handmade", "GardenAndOutdoor"] #tutte le opzioni qui https://webservices.amazon.com/paapi5/documentation/locale-reference/italy.html
 data = {
     "chat_id": chat,
     "text": message,
@@ -115,7 +115,7 @@ def search_items(page, category):
     region = "eu-west-1"
     MinSavingPercent = 50
     #keywords = "Harry Potter"
-    search_index = category #tutte le opzioni qui https://webservices.amazon.com/paapi5/documentation/locale-reference/italy.html
+    search_index = category 
     item_count = 10
     default_api = DefaultApi(
         access_key=access_key, secret_key=secret_key, host=host, region=region
@@ -229,8 +229,9 @@ def main():
 
 print(f"Ora server: {datetime.now()}")
 
-schedule.every().day.at("14:02:00").do(empty_offers)
-schedule.every().day.at("14:02:10").do(main)
+#ricorda che l'orario del server è un'ora indietro
+schedule.every().day.at("08:00:00").do(empty_offers)
+schedule.every().day.at("08:00:10").do(main)
 
 for post_time in scheduled_time:
     schedule.every().day.at(post_time).do(photo_message)
