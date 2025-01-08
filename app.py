@@ -30,7 +30,7 @@ bot = Bot(botkey)
 headers = {"content-type": "application/json"}
 url_bot = f"https://api.telegram.org/bot{botkey}/sendMessage"
 owner_chat_id = os.getenv("owner_chat_id")
-scheduled_time = ["13:28", "13:30", "13:32", "13:34", "13:36", "13:40", "13:42", "13:44", "13:58", "13:59", "14:00", "14:01", "14:02"]
+scheduled_time = ["14:05", "14:08", "13:32", "13:34", "13:36", "13:40", "13:42", "13:44", "13:58", "13:59", "14:00", "14:01", "14:02"]
 bot_offers = []
 tasks = 0
 chosen_categories = ["SportsAndOutdoors", "Books", "Apparel", "Handmade", "GardenAndOutdoor"]
@@ -229,8 +229,8 @@ def main():
 
 print(f"Ora server: {datetime.now()}")
 
-schedule.every().day.at("13:25:00").do(empty_offers)
-schedule.every().day.at("13:25:10").do(main)
+schedule.every().day.at("14:02:00").do(empty_offers)
+schedule.every().day.at("14:02:10").do(main)
 
 for post_time in scheduled_time:
     schedule.every().day.at(post_time).do(photo_message)
