@@ -10,6 +10,8 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 import threading
+from datetime import datetime
+
 load_dotenv("env.txt")
 
 app = Flask(__name__)
@@ -28,7 +30,7 @@ bot = Bot(botkey)
 headers = {"content-type": "application/json"}
 url_bot = f"https://api.telegram.org/bot{botkey}/sendMessage"
 owner_chat_id = os.getenv("owner_chat_id")
-scheduled_time = ["14:20", "14:30", "14:32", "14:34", "14:36", "14:40", "14:42", "14:44", "14:58", "14:59", "15:00", "15:01", "15:02"]
+scheduled_time = ["13:28", "13:30", "13:32", "13:34", "13:36", "13:40", "13:42", "13:44", "13:58", "13:59", "14:00", "14:01", "14:02"]
 bot_offers = []
 tasks = 0
 chosen_categories = ["SportsAndOutdoors", "Books", "Apparel", "Handmade", "GardenAndOutdoor"]
@@ -225,19 +227,15 @@ def main():
           search_items(page, category)
           time.sleep(3)
 
+print(f"Ora server: {datetime.now()}")
 
-# Pianifica attività giornaliere
-schedule.every().day.at("14:40:00").do(empty_offers)
-schedule.every().day.at("13:40:00").do(empty_offers)
-schedule.every().day.at("15:40:00").do(empty_offers)
-#schedule.every().day.at("13:31:10").do(main)
-#schedule.every(5).minutes.do(empty_offers)
-#schedule.every(5).minutes.do(main)
+schedule.every().day.at("13:25:00").do(empty_offers)
+schedule.every().day.at("13:25:10").do(main)
 
 for post_time in scheduled_time:
     schedule.every().day.at(post_time).do(photo_message)
 
-# Funzione per eseguire la logica di schedule
+
 def schedule_runner():
     global tasks
     while True:
@@ -252,7 +250,6 @@ def schedule_runner():
                 tasks -= 1
         time.sleep(1)  # Previene l'uso eccessivo della CPU
 
-# Esegui il gestore di schedule in un thread separato
 schedule_thread = threading.Thread(target=schedule_runner)
 schedule_thread.daemon = True  # Assicura che il thread termini con il programma principale
 schedule_thread.start()
