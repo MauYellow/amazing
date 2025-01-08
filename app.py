@@ -227,8 +227,8 @@ def main():
 
 
 # Pianifica attività giornaliere
-schedule.every().day.at("13:28:00").do(empty_offers)
-schedule.every().day.at("13:28:10").do(main)
+schedule.every().day.at("13:31:00").do(empty_offers)
+schedule.every().day.at("13:31:10").do(main)
 #schedule.every(5).minutes.do(empty_offers)
 #schedule.every(5).minutes.do(main)
 
