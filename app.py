@@ -9,6 +9,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from flask import Flask
+import threading
 load_dotenv("env.txt")
 
 app = Flask(__name__)
@@ -17,10 +18,7 @@ app = Flask(__name__)
 def hello():
     return "Ciao, il tuo servizio funziona!"
 
-if __name__ == '__main__':
-    # Usa la porta definita da Render (di solito è definita nella variabile d'ambiente PORT)
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+
 
 # Telegram Variable
 botkey = os.getenv("botkey")
@@ -30,10 +28,10 @@ bot = Bot(botkey)
 headers = {"content-type": "application/json"}
 url_bot = f"https://api.telegram.org/bot{botkey}/sendMessage"
 owner_chat_id = os.getenv("owner_chat_id")
-scheduled_time = ["10:50", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
+scheduled_time = ["13:28", "13:30", "13:32", "13:34", "13:36", "13:40", "13:42", "13:44", "13:58", "13:59", "14:00", "14:01", "14:02"]
 bot_offers = []
 tasks = 0
-chosen_categories = ["SportsAndOutdoors", "Books"]
+chosen_categories = ["SportsAndOutdoors", "Books", "Apparel", "Handmade", "GardenAndOutdoor"]
 data = {
     "chat_id": chat,
     "text": message,
@@ -228,21 +226,53 @@ def main():
           time.sleep(3)
 
 
-schedule.every().day.at("10:40:00").do(empty_offers)
-schedule.every().day.at("10:40:30").do(main)
-for post_time in scheduled_time:
-   schedule.every().day.at(post_time).do(photo_message)
+# Pianifica attività giornaliere
+schedule.every().day.at("13:25:00").do(empty_offers)
+schedule.every().day.at("13:25:10").do(main)
+#schedule.every(5).minutes.do(empty_offers)
+#schedule.every(5).minutes.do(main)
 
-while True:
-    if len(bot_offers) > 0:
-      schedule.run_pending()
-    else:
-      schedule.run_pending()
-      time.sleep(3)
-      print(f"Tasks: {tasks}")
-      if tasks > 0:
-       schedule.run_pending()
-       tasks -= 1
+for post_time in scheduled_time:
+    schedule.every().day.at(post_time).do(photo_message)
+
+# Funzione per eseguire la logica di schedule
+def schedule_runner():
+    global tasks
+    while True:
+        if len(bot_offers) > 0:
+            schedule.run_pending()
+        else:
+            schedule.run_pending()
+            time.sleep(3)
+            print(f"Tasks: {tasks}")
+            if tasks > 0:
+                schedule.run_pending()
+                tasks -= 1
+        time.sleep(1)  # Previene l'uso eccessivo della CPU
+
+# Esegui il gestore di schedule in un thread separato
+schedule_thread = threading.Thread(target=schedule_runner)
+schedule_thread.daemon = True  # Assicura che il thread termini con il programma principale
+schedule_thread.start()
+
+# Programma principale (simulazione)
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+    print("Bot avviato. Attività pianificate in esecuzione...")
+    try:
+        while True:
+            time.sleep(1)  # Mantieni il programma attivo
+    except KeyboardInterrupt:
+        print("Chiusura del bot.")
+
+
+
+
+
+
+
+
 
 
 
@@ -254,6 +284,8 @@ while True:
 #scheduled time, lo prende così come le api da un file txt
 #sortby è solo fattibile dai prezzi più alti a quelli più bassi
 #eliminare offerte che costano meno di 20€
+# nella bot_offer list mette in ordine in base al minpercentsaving
+#lista degli ultimi 24 ore offerte per evitare doppioni
 
 #4. Gamification
 #Sistema di punti: Premia gli utenti attivi (ad esempio, che cliccano sui link o condividono offerte) con punti da convertire in vantaggi, come accesso a offerte esclusive.
