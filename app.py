@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # Usa la porta definita da Render (di solito è definita nella variabile d'ambiente PORT)
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-    
+
 # Telegram Variable
 botkey = os.getenv("botkey")
 chat = os.getenv("chat")
@@ -30,7 +30,7 @@ bot = Bot(botkey)
 headers = {"content-type": "application/json"}
 url_bot = f"https://api.telegram.org/bot{botkey}/sendMessage"
 owner_chat_id = os.getenv("owner_chat_id")
-scheduled_time = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
+scheduled_time = ["10:50", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
 bot_offers = []
 tasks = 0
 chosen_categories = ["SportsAndOutdoors", "Books"]
@@ -228,8 +228,8 @@ def main():
           time.sleep(3)
 
 
-schedule.every().day.at("08:00:00").do(empty_offers)
-schedule.every().day.at("08:00:30").do(main)
+schedule.every().day.at("10:40:00").do(empty_offers)
+schedule.every().day.at("10:40:30").do(main)
 for post_time in scheduled_time:
    schedule.every().day.at(post_time).do(photo_message)
 
@@ -252,16 +252,14 @@ while True:
 # I doppioni non li elimina perché hanno ASIN o Img diverso? Dovrei confrontere i Title per eliminarli 
 #Fare in modo che se si parla in privato con il bot possa dire se vuole un suo canale amazon
 #scheduled time, lo prende così come le api da un file txt
+#sortby è solo fattibile dai prezzi più alti a quelli più bassi
+#eliminare offerte che costano meno di 20€
 
 #4. Gamification
 #Sistema di punti: Premia gli utenti attivi (ad esempio, che cliccano sui link o condividono offerte) con punti da convertire in vantaggi, come accesso a offerte esclusive.
 #Classifiche: Mostra una classifica degli utenti più attivi o di quelli che hanno trovato le migliori offerte.
 #Quiz e premi: Organizza quiz o piccoli giochi con premi legati a offerte.
 #Vinci buono Amazon
-#Deve avvisare il proprietario che non ci sono altre offerte disponibilie
-
-#FUTURO
-# prendere anche le recensioni e chi lo spedisce
 
 
 categorie_disponibili =[
