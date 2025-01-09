@@ -227,7 +227,7 @@ def main():
           search_items(page, category)
           time.sleep(3)
 
-print(f"Ora server: {datetime.now()}")
+print(f"Ora server:: {datetime.now()}")
 
 #ricorda che l'orario del server è un'ora indietro
 schedule.every().day.at("11:20:00").do(empty_offers)
