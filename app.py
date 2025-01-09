@@ -30,10 +30,11 @@ bot = Bot(botkey)
 headers = {"content-type": "application/json"}
 url_bot = f"https://api.telegram.org/bot{botkey}/sendMessage"
 owner_chat_id = os.getenv("owner_chat_id")
-scheduled_time = ["09:35", "09:40", "09:50", "10:00", "10:30", "11:30", "11:40", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"]
+scheduled_time = ["08:00", "08:30", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"]
 bot_offers = []
 tasks = 0
-chosen_categories = ["SportsAndOutdoors", "Books", "Apparel", "Handmade", "GardenAndOutdoor"] #tutte le opzioni qui https://webservices.amazon.com/paapi5/documentation/locale-reference/italy.html
+chosen_categories = ["Apparel", "Handmade", "GardenAndOutdoor"] #tutte le opzioni qui https://webservices.amazon.com/paapi5/documentation/locale-reference/italy.html
+chosen_min_percentage = 5
 data = {
     "chat_id": chat,
     "text": message,
@@ -69,9 +70,7 @@ def photo_message():
   else:
     data = {
       "chat_id": owner_chat_id,
-      "text": "No more offer to show, next round will be loaded tomorrow",
-      #"photo": "https://jooinn.com/images/no-more-1.jpg",
-      #"disable_web_page_preview": True,
+      "text": "❌ Pubblicazione non avvenuta: Non ci sono più offerte disponibili, hai forse parametri troppo restrittivi? La prossima lista si aggiornerà domani mattina",
 }
     response_bot = requests.post(f"https://api.telegram.org/bot{botkey}/sendMessage", headers=headers, json=data)
     if response_bot.status_code == 200:
@@ -159,7 +158,7 @@ def search_items(page, category):
             offers = response.search_result.items
             for offer in offers:
                 if offer.offers.listings[0].price.savings is not None:
-                  if offer.offers.listings[0].price.savings.percentage > 5:
+                  if offer.offers.listings[0].price.savings.percentage > chosen_min_percentage:
                     if not {"Title": offer.browse_node_info.browse_nodes[0].display_name, "Description": offer.item_info.title.display_value, "Old price": offer.offers.listings[0].saving_basis.amount, "New Price": offer.offers.listings[0].price.display_amount, "Discount Percentage": offer.offers.listings[0].price.savings.percentage, "Url": offer.detail_page_url, "Img": offer.images.primary.large.url} in bot_offers:
                       bot_offers.append({"Title": offer.browse_node_info.browse_nodes[0].display_name, "Description": offer.item_info.title.display_value, "Old price": offer.offers.listings[0].saving_basis.amount, "New Price": offer.offers.listings[0].price.display_amount, "Discount Percentage": offer.offers.listings[0].price.savings.percentage, "Url": offer.detail_page_url, "Img": offer.images.primary.large.url})
                       print("--------------")
@@ -226,12 +225,14 @@ def main():
         for page in range(1,6):
           search_items(page, category)
           time.sleep(3)
+  bot_offers.sort(key=lambda x: x["Discount Percentage"], reverse=True)
+  print(bot_offers)
 
-print(f"Ora server:: {datetime.now()}")
+print(f"Ora server: {datetime.now()}")
 
 #ricorda che l'orario del server è un'ora indietro
-schedule.every().day.at("09:25:00").do(empty_offers)
-schedule.every().day.at("09:25:10").do(main)
+schedule.every().day.at("11:02:00").do(empty_offers)
+schedule.every().day.at("11:02:10").do(main)
 
 for post_time in scheduled_time:
     schedule.every().day.at(post_time).do(photo_message)
@@ -241,6 +242,8 @@ def schedule_runner():
     global tasks
     while True:
         if len(bot_offers) > 0:
+            time.sleep(3)
+            print(f"Prossima offerta: {bot_offers[0]['Title']}, Prezzo: {bot_offers[0]['New Price']}, Sconto: {bot_offers[0]['Discount Percentage']} %")
             schedule.run_pending()
         else:
             schedule.run_pending()
@@ -278,15 +281,19 @@ if __name__ == "__main__":
 
 
 
+
 #DA MODIFICARE
+
 # I doppioni non li elimina perché hanno ASIN o Img diverso? Dovrei confrontere i Title per eliminarli 
 #Fare in modo che se si parla in privato con il bot possa dire se vuole un suo canale amazon
 #scheduled time, lo prende così come le api da un file txt
 #sortby è solo fattibile dai prezzi più alti a quelli più bassi
 #eliminare offerte che costano meno di 20€
-# nella bot_offer list mette in ordine in base al minpercentsaving
 #lista degli ultimi 24 ore offerte per evitare doppioni
 
+#OK
+#Quando ci sta la lista piena time.sleep(3) print "Lista Piena, prossimo annuncio alle.."
+#il bot sorta la lista discendente basandosi su percentage discount
 #4. Gamification
 #Sistema di punti: Premia gli utenti attivi (ad esempio, che cliccano sui link o condividono offerte) con punti da convertire in vantaggi, come accesso a offerte esclusive.
 #Classifiche: Mostra una classifica degli utenti più attivi o di quelli che hanno trovato le migliori offerte.
