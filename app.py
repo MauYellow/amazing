@@ -30,7 +30,7 @@ bot = Bot(botkey)
 headers = {"content-type": "application/json"}
 url_bot = f"https://api.telegram.org/bot{botkey}/sendMessage"
 owner_chat_id = os.getenv("owner_chat_id")
-scheduled_time = ["08:00", "08:30", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"]
+scheduled_time = ["08:00", "08:30", "09:00", "10:00", "10:30", "11:30", "11:40", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"]
 bot_offers = []
 tasks = 0
 chosen_categories = ["SportsAndOutdoors", "Books", "Apparel", "Handmade", "GardenAndOutdoor"] #tutte le opzioni qui https://webservices.amazon.com/paapi5/documentation/locale-reference/italy.html
@@ -230,8 +230,8 @@ def main():
 print(f"Ora server: {datetime.now()}")
 
 #ricorda che l'orario del server è un'ora indietro
-schedule.every().day.at("08:00:00").do(empty_offers)
-schedule.every().day.at("08:00:10").do(main)
+schedule.every().day.at("11:20:00").do(empty_offers)
+schedule.every().day.at("11:20:10").do(main)
 
 for post_time in scheduled_time:
     schedule.every().day.at(post_time).do(photo_message)
