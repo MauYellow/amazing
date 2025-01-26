@@ -285,6 +285,7 @@ def read_airtable():
   print(airtable_data)
   print("------")
   print(response.status_code)
+  airtable_channels = []
   for row in airtable_data['records']:
     airtable_channels.append(
       {
@@ -304,6 +305,7 @@ def read_airtable():
   print("***")
   print(airtable_channels)
   print("***")
+  lista_canali = []
   for id_canali in airtable_channels:
     lista_canali.append({f"{id_canali['id_canale']}": []})
     lista_canali_prova[f'{id_canali['id_canale']}'] = []
@@ -393,11 +395,11 @@ def prova(offerta): ## da sostituire bot_offers con offerta
 #fill_offers()
 #scheduling()
 
-schedule.every().day.at("15:36:00").do(read_airtable)
-schedule.every().day.at("15:44:00").do(empty_offers)
-schedule.every().day.at("15:45:00").do(main)
-schedule.every().day.at("15:55:00").do(fill_offers)
-schedule.every().day.at("15:58:00").do(scheduling)
+schedule.every().day.at("06:00:00").do(read_airtable)
+schedule.every().day.at("07:00:00").do(empty_offers)
+schedule.every().day.at("07:02:00").do(main)
+schedule.every().day.at("08:00:00").do(fill_offers)
+schedule.every().day.at("08:30:00").do(scheduling)
 
 # 08.00 read airtable: quanti canali sono (se nuovi) e categorie nuove
 # 08.10 empty offers
@@ -441,6 +443,8 @@ if __name__ == "__main__":
 
 #DA MODIFICARE
 
+#credo che airtable_channels vada azzerato ogni giorno per aggiornamenti (altrimenti appende su una lista già esistente)
+#anche lista_canali
 #range pagina tornare da 2 a 6
 #minimo prezzo?
 #ho creato button_text e button_url vanno modificati in base al canale, nella variabile offerta?
