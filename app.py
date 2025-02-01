@@ -428,11 +428,11 @@ def prova(offerta): ## da sostituire bot_offers con offerta
 print(f"Ora server: {datetime.now()}")
 #ricorda che l'orario del server è un'ora indietro
 
-schedule.every().day.at("15:30:00").do(update_airtable_data)
-schedule.every().day.at("15:35:00").do(empty_offers)
-schedule.every().day.at("15:35:30").do(main)
-schedule.every().day.at("15:45:00").do(fill_offers)
-schedule.every().day.at("15:55:00").do(scheduling)
+schedule.every().day.at("17:05:00").do(update_airtable_data)
+schedule.every().day.at("17:10:00").do(empty_offers)
+schedule.every().day.at("17:10:30").do(main)
+schedule.every().day.at("17:30:00").do(fill_offers)
+schedule.every().day.at("17:45:00").do(scheduling)
 
 
 # 08.00 read airtable: quanti canali sono (se nuovi) e categorie nuove
