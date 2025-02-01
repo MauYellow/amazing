@@ -141,9 +141,7 @@ def prova_messaggio(): # Non utilizzato solo di prova
     print(f"Errore nell'invio del messaggio. Status code: {response_bot.status_code}")
     print(response_bot.text)
 
-
-
-def search_items(page, category, id_canale, partnerTag, minimosconto, button_text, button_url): #16.01 qui bisogna appendere l'offerta all'interno del dictionary (lista_canali) con id il canaleid
+def search_items(page, category, id_canale, partnerTag, minimosconto, button_text, button_url, row_id): #16.01 qui bisogna appendere l'offerta all'interno del dictionary (lista_canali) con id il canaleid
     access_key = os.getenv("access_key")
     secret_key = os.getenv("secret_key")
     partner_tag = "maulink-21"
@@ -201,10 +199,21 @@ def search_items(page, category, id_canale, partnerTag, minimosconto, button_tex
                     if not {"Title": offer.browse_node_info.browse_nodes[0].display_name, "Description": offer.item_info.title.display_value, "Old price": offer.offers.listings[0].saving_basis.amount, "New Price": offer.offers.listings[0].price.display_amount, "Discount Percentage": offer.offers.listings[0].price.savings.percentage, "Url": new_url, "Img": offer.images.primary.large.url} in bot_offers: # vecchio url offer.detail_page_url
                       bot_offers.append({"id_canale": id_canale, "Title": offer.browse_node_info.browse_nodes[0].display_name, "Description": offer.item_info.title.display_value, "Old price": offer.offers.listings[0].saving_basis.amount, "New Price": offer.offers.listings[0].price.display_amount, "Discount Percentage": offer.offers.listings[0].price.savings.percentage, "Url": new_url, "Img": offer.images.primary.large.url})
                       #print(f"Lista canali: {lista_canali}")
-                      for x in lista_canali: #occhio che l'ho definita come [] appena sopra questa funzione
+                      for x in lista_canali:
                         title = offer.browse_node_info.browse_nodes[0].display_name
                         if id_canale in x:
                            x[f'{id_canale}'].append({"id_canale": id_canale, "Title": title.replace("_", " "), "Description": offer.item_info.title.display_value, "Old price": offer.offers.listings[0].saving_basis.amount, "New Price": offer.offers.listings[0].price.display_amount, "Discount Percentage": offer.offers.listings[0].price.savings.percentage, "Url": new_url, "Img": offer.images.primary.large.url, "button_text": button_text, "button_url": button_url})
+                           new_data = {
+                              "records": [
+                                 { "id": row_id,
+                                  "fields": { "offerte": f"{x[f'{id_canale}']}" }
+                                  }
+                              ]
+                           }
+                           patch_response = requests.patch(airtable_url, headers=airtable_headers, json=new_data)
+                           print(f"Aggiunta offerta alla colonna 'offerte' di Airtable")
+                           print(f"Patch response code: {patch_response.status_code}")
+                           print(f"Patch response text: {patch_response.text}")
                            break
                     else:
                       print("Doppione eliminato correttamente.")
@@ -252,39 +261,62 @@ def empty_offers():
 
 def main():
   print("Starting main function..")
+  print(len(airtable_channels))
   for channel in airtable_channels:
+    print(f"Canale {channel}")
     global tasks
     tasks = tasks + 1
     if len(channel['categorie']) == 1:
       print("categoria trovata: 1")
-      for page in range(1,5): #da tornare a 1,6
+      for page in range(1,6): #da tornare a 1,6
           print("**********")
           print(page, channel['categorie'][0], channel['id_canale'])
           print("**********")
-          search_items(page, channel['categorie'][0], channel['id_canale'], channel['partnerTag'], channel['minimosconto'], channel['button_text'], channel['button_url'])
+          search_items(page, channel['categorie'][0], channel['id_canale'], channel['partnerTag'], channel['minimosconto'], channel['button_text'], channel['button_url'], channel['row_id'])
           time.sleep(2)
     else:
       print(f"categorie trovate: {len(channel['categorie'])}")
       for category in channel['categorie']:
-          for page in range(1,5): #da tornare a 1,6
-            search_items(page, category, channel['id_canale'], channel['partnerTag'], channel['minimosconto'], channel['button_text'], channel['button_url'])
+          for page in range(1,6): #da tornare a 1,6
+            search_items(page, category, channel['id_canale'], channel['partnerTag'], channel['minimosconto'], channel['button_text'], channel['button_url'], channel['row_id'])
             time.sleep(3)
-    bot_offers.sort(key=lambda x: x["Discount Percentage"], reverse=True)
-    new_offer = {"fields": {"offerte": f"{bot_offers}"}}
-    response_patch = requests.patch(airtable_url + "/" + channel['row_id'], headers=airtable_headers, json=new_offer)
-    print("*** Response Patch:")
-    print(response_patch.status_code)
-    print(response_patch)
-    print(bot_offers)
+    #bot_offers.sort(key=lambda x: x["Discount Percentage"], reverse=True) # questo va cambiato non deve esserci più bot_offers?
+    #new_offer = {"fields": {"offerte": f"{bot_offers}"}}
+    #response_patch = requests.patch(airtable_url + "/" + channel['row_id'], headers=airtable_headers, json=new_offer)
+    #print("*** Response Patch:")
+    #print(response_patch.status_code)
+    #print(response_patch)
+    #print(bot_offers)
+
+def update_airtable_data():
+    global airtable_channels, lista_canali  # Dichiarazione delle variabili globali
+    airtable_channels, lista_canali = read_airtable()
+    print("Dati Airtable aggiornati!")
 
 def read_airtable():
   response = requests.get(airtable_url, headers=airtable_headers)    
   airtable_data = response.json()
-  print(len(airtable_data['records']))
+  print(f"Lunghezza database Airtable: {len(airtable_data['records'])}")
   print("------")
   print(airtable_data)
   print("------")
   print(response.status_code)
+  for row in airtable_data['records']:
+    time.sleep(1)
+    print(f"Azzerando le offerte della giornata precedente di {row['fields']['nomecanale']}")
+    new_data = {
+        "records": [
+        {
+            "id": row['id'],
+            "fields": {
+                "offerte": "[]"
+            }
+        }
+    ]
+}
+    response_patch = requests.patch(airtable_url, headers=airtable_headers, json=new_data)
+    print(f"Risultato patch: {response_patch.status_code}")
+    print(f"Messaggio patch: {response_patch.text}")
   airtable_channels = []
   for row in airtable_data['records']:
     airtable_channels.append(
@@ -311,6 +343,7 @@ def read_airtable():
     lista_canali_prova[f'{id_canali['id_canale']}'] = []
   print(f"Risultato: {lista_canali}")
   print(f"Risultato_prova: {lista_canali_prova}")
+  return airtable_channels, lista_canali
 
 def fill_offers():
    print("---")
@@ -345,10 +378,6 @@ def scheduling():
       else:
         break
 
-
-print(f"Ora server: {datetime.now()}")
-
-#ricorda che l'orario del server è un'ora indietro
 
 def prova(offerta): ## da sostituire bot_offers con offerta
   if len(bot_offers) >= 0:
@@ -389,17 +418,22 @@ def prova(offerta): ## da sostituire bot_offers con offerta
       print(f"Errore: {response_bot.status_code}")
 
 #prova()
-read_airtable()
-empty_offers()
-main()
-fill_offers()
-scheduling()
+#airtable_channels, lista_canali = read_airtable()
+#print(f"Lista canali fetchata: {airtable_channels}")
+#empty_offers() # potrei anche toglierla questa
+#main()
+#fill_offers()
+#scheduling()
 
-#schedule.every().day.at("09:10:00").do(read_airtable)
-#schedule.every().day.at("09:05:00").do(empty_offers)
-#schedule.every().day.at("09:06:00").do(main)
-#schedule.every().day.at("09:10:00").do(fill_offers)
-#schedule.every().day.at("09:15:00").do(scheduling)
+print(f"Ora server: {datetime.now()}")
+#ricorda che l'orario del server è un'ora indietro
+
+schedule.every().day.at("15:30:00").do(update_airtable_data)
+schedule.every().day.at("15:35:00").do(empty_offers)
+schedule.every().day.at("15:35:30").do(main)
+schedule.every().day.at("15:45:00").do(fill_offers)
+schedule.every().day.at("15:55:00").do(scheduling)
+
 
 # 08.00 read airtable: quanti canali sono (se nuovi) e categorie nuove
 # 08.10 empty offers
@@ -412,7 +446,7 @@ def schedule_runner():
     while True:
         if len(bot_offers) > 0:
             time.sleep(3)
-            print(f"Prossima offerta: {bot_offers[0]['Title']}, Prezzo: {bot_offers[0]['New Price']}, Sconto: {bot_offers[0]['Discount Percentage']} %")
+            print(f"Prossima offerta?") # {bot_offers[0]['Title']}, Prezzo: {bot_offers[0]['New Price']}, Sconto: {bot_offers[0]['Discount Percentage']} %")
             schedule.run_pending()
         else:
             schedule.run_pending()
@@ -442,7 +476,9 @@ if __name__ == "__main__":
 
 
 #DA MODIFICARE
-
+#sortare x[canale] in modo che le offerte siano discendenti di sconto
+#aggiungere scheduled time nella dictionary dell'offerta per sapere quando è pubblicata - questo aiuterà forse anche a prendere la prossima offerta e in quale canale in while true
+#if sono finite le offerte, schedula un messaggio telegram all'owner, non manda, ma schedula riempiendo gli orari che non sono coperti
 #credo che airtable_channels vada azzerato ogni giorno per aggiornamenti (altrimenti appende su una lista già esistente)
 #anche lista_canali
 #range pagina tornare da 2 a 6
