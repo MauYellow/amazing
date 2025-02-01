@@ -395,11 +395,11 @@ def prova(offerta): ## da sostituire bot_offers con offerta
 #fill_offers()
 #scheduling()
 
-schedule.every().day.at("21:06:00").do(read_airtable)
-schedule.every().day.at("21:05:00").do(empty_offers)
-schedule.every().day.at("21:06:00").do(main)
-schedule.every().day.at("21:10:00").do(fill_offers)
-schedule.every().day.at("21:15:00").do(scheduling)
+schedule.every().day.at("09:10:00").do(read_airtable)
+schedule.every().day.at("09:05:00").do(empty_offers)
+schedule.every().day.at("09:06:00").do(main)
+schedule.every().day.at("09:10:00").do(fill_offers)
+schedule.every().day.at("09:15:00").do(scheduling)
 
 # 08.00 read airtable: quanti canali sono (se nuovi) e categorie nuove
 # 08.10 empty offers
