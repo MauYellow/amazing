@@ -382,10 +382,10 @@ def post_offerta():
 #fill_offers()
 #post_offerta()
 
-schedule.every().day.at("06:00:00").do(update_airtable_data)
+schedule.every().day.at("11:15:00").do(update_airtable_data)
 #schedule.every().day.at("10:18:00").do(empty_offers)
-schedule.every().day.at("06:15:00").do(main)
-schedule.every().day.at("06:30:00").do(fill_offers)
+schedule.every().day.at("11:20:00").do(main)
+schedule.every().day.at("11:30:00").do(fill_offers)
 schedule.every().day.at("07:00:00").do(post_offerta)
 schedule.every().day.at("08:00:00").do(post_offerta)
 schedule.every().day.at("09:00:00").do(post_offerta)
